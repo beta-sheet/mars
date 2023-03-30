@@ -1,0 +1,198 @@
+LARS file
+#
+#
+_BEGIN_RECORDS_
+---------------------------------------------------------------------------
+CODE: [AL12.1]/UNSR
+AUTH: Allison, J.R., Riniker, S. & van Gunsteren, W.F.
+DATE: 2012
+TITL: Coarse-grained models for the solvents dimethyl sulfoxide, 
+      chloroform and methanol.
+JRNL: J. Chem. Phys. 136, 054505/1-054505/11
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [AM20.1]/UNSR
+AUTH: Armacost, K.A., Riniker, S. & Cournia, Z.
+DATE: 2020
+TITL: Exploring novel directions in free energy calculations.
+JRNL: J. Chem. Inf. Model. 60, 5283-528
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [AR20.1]/UNSR
+AUTH: Armacost, K.A., Riniker, S. & Cournia, Z.
+DATE: 2020
+TITL: Novel directions in free energy methods and applications.
+JRNL: J. Chem. Inf. Model. 60, 1-5
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [BA99.2]/PROT/FOLD
+AUTH: Baldwin, R.L.
+DATE: 1999
+TITL: Protein folding from 1961 to 1982.
+JRNL: Nature Struct. Biol. 6, 814-817
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [BA99.3]/KILL
+TYPE: KILL
+COMM: now BA00.4
+---------------------------------------------------------------------------
+CODE: [BA00.4]/IOSV/THEO/ATOM/FREE/APPE;/ELEC/ARTI/IOSV#,SC,RF,CONT#,MT
+AUTH: Baker, N.A., H\"{u}nenberger, P.H. & McCammon, J.A.
+DATE: 2000
+TITL: Erratum : "Polarization around an ion in a dielectric continuum
+      with truncated
+      electrostatic interactions" [J. Chem. Phys. 110, 10679-10692 (1999)].
+JRNL: J. Chem. Phys. 113, 2510-2511
+TYPE: PAPR
+COMM: This reference was previously (incorrectly) BA99.3
+XCLS: ARTI -> C, D , RF$>$MT$>$SC
+---------------------------------------------------------------------------
+CODE: [KU20.1]/UNSR
+AUTH: Kubincov\'a, A., H\"unenberger, P.H. & Krishnan, M.
+DATE: 2020
+TITL: Interfacial solvation can explain attraction between like-charged
+      objects in aqueous solution.
+JRNL: J. Chem. Phys. 152, 104713/1-104713/9
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [KU20.2]/UNSR
+AUTH: Kumar, A., Yoluk, O. & MacKerell Jr., A.D.
+DATE: 2020
+TITL: FFParam: Standalone package for CHARMM additive and
+      Drude polarizable force field parametrization of small
+      molecules.
+JRNL: J Comput Chem. 41, 958-970.
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [KU20.3]/UNSR
+AUTH: Kubincov\'a, A., Riniker, S. & H\"unenberger, P.H.
+DATE: 2020
+TITL: Reaction-field electrostatics in molecular dynamics simulations: Development 
+      of a conservative scheme compatible with an atomic cutoff.
+JRNL: Phys. Chem. Chem. Phys. 22, 26419-26437
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [KU21.1]/UNSR
+AUTH: Kubincov\'a, A., Riniker, S. & H\"unenberger, P.H.
+DATE: 2021
+TITL: Solvent-scaling as an alternative to coarse-graining in adaptive-resolution 
+      simulations: The adaptive solvent-scaling (AdSoS) scheme.
+JRNL: J. Chem. Phys. 155, 094107
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [OL20.1]/UNSR
+AUTH: Oliveira, M.P., Andrey, M., Rieder, S.R., Kern, L., Hahn, D.F., 
+      Riniker, S., Horta, B.A.C. & H\"unenberger, P.H.
+DATE: 2020
+TITL: Systematic optimization of a fragment-based force-field based 
+      on experimental pure-liquid properties considering large compound
+      families: Application to the saturated haloalkanes.
+JRNL: J. Chem. Theory Comput. 16, 7525-7555
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [OL20.2]/UNSR
+AUTH: Oliveira, N.F.B., Pires, I.D.S. & Machuqueiro, M.
+DATE: 2020
+TITL: Improved GROMOS 54A7 charge sets for phosphorylated Tyr, Ser,
+      and Thr to deal with pH-dependent binding phenomena.
+JRNL: J. Chem. Theory Comput. 16, 6368-6376
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [OL21.1]/UNSR
+AUTH: Oliveira, M.P. & H\"unenberger, P.H.
+DATE: 2021
+TITL: Systematic optimization of a fragment-based force-field against 
+      experimental pure-liquid properties considering large compound
+      families: Application to oxygen and nitrogen compounds.
+JRNL: Phys. Chem. Chem. Phys. 23, 17774-17793
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [OL22.1]/UNSR
+AUTH: Oliveira, M.P. & H\"unenberger, P.H.
+DATE: 2022
+TITL: Force fields optimized against experimental data for large compound 
+      families using CombiFF: Validation considering non-target 
+      properties and polyfunctional compounds.
+JRNL: J. Mol. Graph. Model. 118, 108312/1-108312/10
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [OL22.2]/UNSR
+AUTH: Oliveira, M.P., Gon&ccedil;alves, Y.M.H., Kashef Ol Gheta, S.,
+      Rieder, S.R, Horta, B.A.C. & H\"unenberger, P.H.
+DATE: 2022
+TITL: Comparison of the united- and all-atom representations of 
+      (halo)alkanes based on two condensed-phase force fields 
+      optimized against the same experimental data set.
+JRNL: J. Chem. Theory Comput. 18, 6757-6778
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [RI22.1]/UNSR
+AUTH: Ries, B., Rieder, S., Rhiner, C., H&uuml;nenberger, P.H. & Riniker, S.
+DATE: 2022
+TITL: RestraintMaker: A graph-based approach to select distance restraints 
+      in free-energy calculations with dual topology.
+JRNL: J. Comput.-Aided Mol. Des. 36, 175-192
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [RI22.2]/UNSR
+AUTH: Rieder, S.R., Ries, B., Champion, C., Barros, E.P., 
+      H\"unenberger, P.H. & Riniker, S.
+DATE: 2022
+TITL: Replica-exchange enveloping distribution 
+      sampling: Calculation of relative free energies in GROMOS.
+JRNL: Chimia 76, 327-330
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [RI23.1]/UNSR
+AUTH: Rieder, S.R., Oliveira, M.P., Riniker, S. & H\"unenberger, P.H.
+DATE: 2022
+TITL: Development of an open-source software for isomer enumeration.
+JRNL: J. Cheminf. 15, 10/1-10/22
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [RI22.4]/UNSR
+AUTH: Rieder, S.R., Ries, B., Champion, C., Barros, E.P., 
+      H\"unenberger, P.H. & Riniker, S.
+DATE: 2022
+TITL: Replica-exchange enveloping distribution sampling using 
+      generalized AMBER force-field topologies: Application to 
+      relative hydration free-energy calculations for 
+      large sets of molecules.
+JRNL: J. Chem. Inf. Model. 62, 3043-3056
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [RI22.5]/UNSR
+AUTH: Rieder, S., Ries, B., Kubincov\'a, A., Champion, C., 
+      Barros, E.P., H\"unenberger, P.H. & Riniker, S.
+DATE: 2022
+TITL: Leveraging the sampling efficiency of RE-EDS in OpenMM using a shifted 
+      reaction-field with an atom-based cutoff.
+JRNL: J. Chem. Phys. 157, 104117/1-104117/18
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [VA11.7]/UNSR
+AUTH: van Gunsteren, W.F.
+DATE: 05/05/2011
+TITL: The GROMOS software for biomolecular simulation.
+WEBP: http://www.gromos.net
+TYPE: SFTW
+---------------------------------------------------------------------------
+CODE: [WA20.3]/UNSR
+AUTH: Wang, S., Witek, J., Landrum, G.A. & Riniker, S.
+DATE: 2020
+TITL: Improving conformer generation for small rings and macrocycles
+      based on distance geometry and experimental torsional-angle
+      preferences.
+JRNL: J. Chem. Inf. Model. 60, 2044-2058
+TYPE: PAPR
+---------------------------------------------------------------------------
+CODE: [WA22.1]/UNSR
+AUTH: Walker-Gibbons, R., Kubincov\'a, A., 
+      H\"unenberger, P.H. & Krishnan, M.
+DATE: 2022
+TITL: The role of surface chemistry in the orientational behaviour 
+      of water at an interface
+JRNL: J. Phys. Chem. B 126, 4697-4710
+TYPE: PAPR
+---------------------------------------------------------------------------
+_END_RECORDS_
