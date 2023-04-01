@@ -1,250 +1,243 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # --------------------------------------------------------------------------------------
-#                                   LARS MASTER SCRIPT
+#                                   MAIN SCRIPT
 # --------------------------------------------------------------------------------------
 #
-# This is a general tool to extract information from the file lars.txt
-# Its functionality is similar to Phil's csh scripts, and the transfer to python was
-# meant to enhance readability, extensibility and make it independent from a specitic
-# shell and environment variables
+# This is a utility tool for reference management based on the file lars.txt. 
 
-
-# -------------------------------- imports ---------------------------------------------
 
 # python runtime libs
 import argparse
-import sys
 import os
+import sys
 
-# -------------------------------- set up the correct envir ----------------------------
-
-# change directory to where this script is located
-path = os.path.dirname(os.path.realpath(__file__))
-larspath = path
-
-# add to path for includes
-sys.path.insert(0, path + '/src')
-
-# source files
-from lars_globals import *
-from lars_find import lars_find, lars_find_regex
-from lars_bibtex import lars_bibtex
-from lars_print import lars_print
-from lars_pdf import *
-
-larsfile = larspath + "/lars.txt"
-srcpath = path + "/src"
-
-# ----------------------------------------- parser -------------------------------------
-
-# parse input args and decide what to do next
-parser = argparse.ArgumentParser(description="This is a ripped-off version of Phil's lars csh scripts, rewritten in python with bash wrappers. \
-   It performs a variety of functions, which can be specified by the commands listed below (\"positional arguments\"). \
-   For more info on the individual commands, type mars [command] -h")
-
-# lars find ...
-sub1 = parser.add_subparsers(dest='cmd')
-sp_find = sub1.add_parser("find", help="search for string in lars file", description="Pattern search in lars records. By default, the whole lars entries \
-   are searched, optional arguments can be asserted to limit the searched space to certain categories. Also, regex search is not enabled by \
-   default, and instead, the search terms can be separated by AND, OR and NOT. Use the -r option to enable regex search. Also note, that unless the key \
-   consists of only one word, it has to be surrounded by quotes. The default output is \"print -t\" (prints codes + titles).")
-sp_find.add_argument("-c", "--code", dest="find_code", help="search for string in code+topic", action='store_true')
-sp_find.add_argument("-d", "--date", dest="find_date", help="search for string in date", action='store_true')
-sp_find.add_argument("-a", "--author", dest="find_author", help="search for string in author", action='store_true')
-sp_find.add_argument("-t", "--title", dest="find_title", help="search for string in title", action='store_true')
-sp_find.add_argument("-j", "--journal", dest="find_journal", help="search for string in journal name", action='store_true')
-sp_find.add_argument("-n", "--comment", dest="find_comment", help="search for string in comment", action='store_true')
-sp_find.add_argument("-r", "--regex", help="treat string as regex", action='store_true')
-sp_find.add_argument("-s", "--case-sensitive", help="case-sensitive search", action='store_true', dest="case")
-sp_find.add_argument('key', help="search pattern (supports AND, OR, NOT operators in default mode, or regex matching if -r is asserted). Unless consisting of a single word, has to be surrounded by quotes.")
-
-# lars find ... print ...
-sub2 = sp_find.add_subparsers(dest='cmd2')
-spp_print = sub2.add_parser("print", help="output (parts of) the lars entries corresponding to the matching codes as text [default]")
-spp_print.add_argument("-c", "--code", help="print lars codes only", action='store_true')
-spp_print.add_argument("-r", "--record", help="print lars records", action='store_true')
-spp_print.add_argument("-t", "--title", help="print lars titles", action='store_true')
-spp_print.add_argument("-T", "--title-author", help="print lars titles and first+last author", action='store_true', dest="titauth")
-spp_print.add_argument("-a", "--author", help="print lars authors", action='store_true')
-spp_print.add_argument("-j", "--journal", help="print lars journal reference", action='store_true')
-spp_print.add_argument("-d", "--date", help="print lars publication year", action='store_true')
-
-# lars find ... evince
-spp_evince = sub2.add_parser("evince", help="evince found pdfs")
-spp_evince.add_argument("-s", "--si", help="evince supporting info instead of main paper", action='store_true')
-
-# lars find ... extract ...
-spp_extract = sub2.add_parser("extract", help="extract found pdfs to current dir")
-spp_extract.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
-spp_extract.add_argument("-s", "--si", help="extract supporting info instead of main paper", action='store_true')
-
-# lars find ... sum ...
-spp_sum = sub2.add_parser("sum", help="make a pdf from 1st pages of found records")
-spp_sum.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
-spp_sum.add_argument("-o", "--outfile", help="specify outfile", default="sum.pdf")
-
-# lars print ...
-sp_print = sub1.add_parser("print", help="print lars entries based on input codes", description="Search command-line args or a file for lars codes \
-   and print (parts of) the matching records")
-sp_print.add_argument("-c", "--code", help="print lars codes", action='store_true')
-sp_print.add_argument("-r", "--record", help="print lars records", action='store_true')
-sp_print.add_argument("-t", "--title", help="print lars titles", action='store_true')
-sp_print.add_argument("-T", "--title-author", help="print lars titles and first+last author", action='store_true', dest="titauth")
-sp_print.add_argument("-a", "--author", help="print lars authors", action='store_true')
-sp_print.add_argument("-j", "--journal", help="print lars journal reference", action='store_true')
-sp_print.add_argument("-d", "--date", help="print lars publication year", action='store_true')
-sp_print.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes")  
-
-# lars evince ...
-sp_evince = sub1.add_parser("evince", help="evince pdfs based on input codes", description="Search command-line args or a file for lars codes \
-   and evince the matching pdfs")
-sp_evince.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes") 
-sp_evince.add_argument("-s", "--si", help="evince supporting info instead of main paper", action='store_true')
-
-# lars extract ...
-sp_extract = sub1.add_parser("extract", help="extract pdfs based on input codes", description="Search command-line args or a file for lars codes \
-   and extract found pdfs to current dir")
-sp_extract.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
-sp_extract.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes")
-sp_extract.add_argument("-s", "--si", help="extract supporting info instead of main paper", action='store_true')
-
-# lars sum ...
-sp_sum = sub1.add_parser("sum", help="make a pdf from 1st pages of entries", description="Search command-line args or a file for lars codes \
-   and make a pdf from 1st pages of found records")
-sp_sum.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
-sp_sum.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes")  
-sp_sum.add_argument("-o", "--outfile", help="specify outfile (default: sum.pdf)", default="sum.pdf")
-
-# lars check
-#sp_check = sub1.add_parser("check", help="Not supported yet")
-
-# lars bibtex
-sp_bibtex = sub1.add_parser("bibtex", help="convert lars.txt to bibtex file", description="convert lars.txt to bibtex file")
-sp_bibtex.add_argument("-o", "--outfile", help="create file.bib (default lars.bib)", nargs=1, dest="bibfile", default=["lars"])
-sp_bibtex.add_argument("-f", "--infile", help="parse file.tex for larscodes", nargs=1, dest="texfile")
-sp_bibtex.add_argument("-r", "--reverse", help="report authors as [surname last_name]", action='store_true')
-
-# lars reflist
-#sp_reflist = sub1.add_parser("reflist", help="Not supported yet")
-
-# add default printer to find if none given (as subparsers are required args in python)
-find_sp = ["print", "evince", "extract", "sum"]
-
-if len(sys.argv) > 1 and sys.argv[1] == "find" and len(set(sys.argv[1:]).intersection(find_sp)) == 0:
-   sys.argv.append("print")
-
-args = parser.parse_args()
+from src.lars_bibtex import lars_bibtex
+from src.lars_find import lars_find, lars_find_regex
+from src.lars_globals import *
+from src.lars_pdf import *
+from src.lars_print import lars_print
 
 
-# ---------------------------------- function switch -----------------------------------
+def main():
 
-# crossroads for the different functions - decide, where to send the input...
+   # set up paths
+   path = os.path.dirname(os.path.realpath(__file__))
+   larsfile = path + "/lars.txt"
+   srcpath = path + "/src"
 
-# -------------------------- mars find ----------------------------
-if args.cmd == "find":
+   # ----------------------------------------- argparse -------------------------------------
 
-   # read in lars file
-   records = read_in(larsfile)
+   # parse input args and decide what to do next
+   parser = argparse.ArgumentParser(description="This is a ripped-off version of Phil's lars csh scripts, rewritten in python with bash wrappers. \
+      It performs a variety of functions, which can be specified by the commands listed below (\"positional arguments\"). \
+      For more info on the individual commands, type mars [command] -h")
 
-   # extract attributes to search for
-   search_attr = []
+   # lars find ...
+   sub1 = parser.add_subparsers(dest='cmd')
+   sp_find = sub1.add_parser("find", help="search for string in lars file", description="Pattern search in lars records. By default, the whole lars entries \
+      are searched, optional arguments can be asserted to limit the searched space to certain categories. Also, regex search is not enabled by \
+      default, and instead, the search terms can be separated by AND, OR and NOT. Use the -r option to enable regex search. Also note, that unless the key \
+      consists of only one word, it has to be surrounded by quotes. The default output is \"print -t\" (prints codes + titles).")
+   sp_find.add_argument("-c", "--code", dest="find_code", help="search for string in code+topic", action='store_true')
+   sp_find.add_argument("-d", "--date", dest="find_date", help="search for string in date", action='store_true')
+   sp_find.add_argument("-a", "--author", dest="find_author", help="search for string in author", action='store_true')
+   sp_find.add_argument("-t", "--title", dest="find_title", help="search for string in title", action='store_true')
+   sp_find.add_argument("-j", "--journal", dest="find_journal", help="search for string in journal name", action='store_true')
+   sp_find.add_argument("-n", "--comment", dest="find_comment", help="search for string in comment", action='store_true')
+   sp_find.add_argument("-r", "--regex", help="treat string as regex", action='store_true')
+   sp_find.add_argument("-s", "--case-sensitive", help="case-sensitive search", action='store_true', dest="case")
+   sp_find.add_argument('key', help="search pattern (supports AND, OR, NOT operators in default mode, or regex matching if -r is asserted). Unless consisting of a single word, has to be surrounded by quotes.")
 
-   if args.find_code:
-      search_attr.append("code")
-   if args.find_date:
-      search_attr.append("date")
-   if args.find_author:
-      search_attr.append("authNoLatex")
-   if args.find_title:
-      search_attr.append("titl")
-      search_attr.append("bkti")
-   if args.find_journal:
-      search_attr.append("jrnl")
-   if args.find_comment:
-      search_attr.append("comm")
+   # lars find ... print ...
+   sub2 = sp_find.add_subparsers(dest='cmd2')
+   spp_print = sub2.add_parser("print", help="output (parts of) the lars entries corresponding to the matching codes as text [default]")
+   spp_print.add_argument("-c", "--code", help="print lars codes only", action='store_true')
+   spp_print.add_argument("-r", "--record", help="print lars records", action='store_true')
+   spp_print.add_argument("-t", "--title", help="print lars titles", action='store_true')
+   spp_print.add_argument("-T", "--title-author", help="print lars titles and first+last author", action='store_true', dest="titauth")
+   spp_print.add_argument("-a", "--author", help="print lars authors", action='store_true')
+   spp_print.add_argument("-j", "--journal", help="print lars journal reference", action='store_true')
+   spp_print.add_argument("-d", "--date", help="print lars publication year", action='store_true')
 
-   # default: search everything
-   if len(search_attr) == 0:
-      search_attr = attr[:]
-      search_attr.remove("auth")
-      search_attr.append("authNoLatex")
-  
-   # get the job done
-   if not args.regex:
-      found = lars_find(records, args.key, search_attr, args.case)
-   else:
-      found = lars_find_regex(records, args.key, search_attr, args.case)
+   # lars find ... evince
+   spp_evince = sub2.add_parser("evince", help="evince found pdfs")
+   spp_evince.add_argument("-s", "--si", help="evince supporting info instead of main paper", action='store_true')
 
-   # we need this for the pdf ops
-   codes = [f.code for f in found]
+   # lars find ... extract ...
+   spp_extract = sub2.add_parser("extract", help="extract found pdfs to current dir")
+   spp_extract.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
+   spp_extract.add_argument("-s", "--si", help="extract supporting info instead of main paper", action='store_true')
 
-   # now proceed to the outputting function...
+   # lars find ... sum ...
+   spp_sum = sub2.add_parser("sum", help="make a pdf from 1st pages of found records")
+   spp_sum.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
+   spp_sum.add_argument("-o", "--outfile", help="specify outfile", default="sum.pdf")
 
-   # ~~~~~~~~~~ mars find ... print ... ~~~~~~~~~~
-   if args.cmd2 == "print":
+   # lars print ...
+   sp_print = sub1.add_parser("print", help="print lars entries based on input codes", description="Search command-line args or a file for lars codes \
+      and print (parts of) the matching records")
+   sp_print.add_argument("-c", "--code", help="print lars codes", action='store_true')
+   sp_print.add_argument("-r", "--record", help="print lars records", action='store_true')
+   sp_print.add_argument("-t", "--title", help="print lars titles", action='store_true')
+   sp_print.add_argument("-T", "--title-author", help="print lars titles and first+last author", action='store_true', dest="titauth")
+   sp_print.add_argument("-a", "--author", help="print lars authors", action='store_true')
+   sp_print.add_argument("-j", "--journal", help="print lars journal reference", action='store_true')
+   sp_print.add_argument("-d", "--date", help="print lars publication year", action='store_true')
+   sp_print.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes")  
 
-      lars_print(found, args.record, args.code, args.author, args.journal, args.title, args.titauth, args.date)
+   # lars evince ...
+   sp_evince = sub1.add_parser("evince", help="evince pdfs based on input codes", description="Search command-line args or a file for lars codes \
+      and evince the matching pdfs")
+   sp_evince.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes") 
+   sp_evince.add_argument("-s", "--si", help="evince supporting info instead of main paper", action='store_true')
 
-   # ~~~~~~~~~~ mars find ... evince ... ~~~~~~~~~~
-   elif args.cmd2 == "evince":
-      lars_evince(codes, srcpath)
+   # lars extract ...
+   sp_extract = sub1.add_parser("extract", help="extract pdfs based on input codes", description="Search command-line args or a file for lars codes \
+      and extract found pdfs to current dir")
+   sp_extract.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
+   sp_extract.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes")
+   sp_extract.add_argument("-s", "--si", help="extract supporting info instead of main paper", action='store_true')
 
-   # ~~~~~~~~~~ mars find ... extract ... ~~~~~~~~~~
-   elif args.cmd2 == "extract":
-      lars_extract(codes, srcpath, args.tag)
+   # lars sum ...
+   sp_sum = sub1.add_parser("sum", help="make a pdf from 1st pages of entries", description="Search command-line args or a file for lars codes \
+      and make a pdf from 1st pages of found records")
+   sp_sum.add_argument("-t", "--tag", help="tag found pdfs", action='store_true')
+   sp_sum.add_argument('lcode', nargs="+", help="this can be either string(s), or a file containing lars codes")  
+   sp_sum.add_argument("-o", "--outfile", help="specify outfile (default: sum.pdf)", default="sum.pdf")
 
-   # ~~~~~~~~~~ mars find ... sum ... ~~~~~~~~~~
-   elif args.cmd2 == "sum":
-      lars_sum(codes, path, args.tag, args.outfile)
+   # lars check
+   #sp_check = sub1.add_parser("check", help="Not supported yet")
 
-# -------------------------- mars bibtex --------------------------
-elif args.cmd == "bibtex":
+   # lars bibtex
+   sp_bibtex = sub1.add_parser("bibtex", help="convert lars.txt to bibtex file", description="convert lars.txt to bibtex file")
+   sp_bibtex.add_argument("-o", "--outfile", help="create file.bib (default lars.bib)", nargs=1, dest="bibfile", default=["lars"])
+   sp_bibtex.add_argument("-f", "--infile", help="parse file.tex for larscodes", nargs=1, dest="texfile")
+   sp_bibtex.add_argument("-r", "--reverse", help="report authors as [surname last_name]", action='store_true')
 
-   # read in lars file
-   records = read_in(larsfile)
+   # lars reflist
+   #sp_reflist = sub1.add_parser("reflist", help="Not supported yet")
 
-   options = []
-   if args.reverse:
-      options.append("r")
-      
-   bibfile = args.bibfile[0] + ".bib"
+   # add default printer to find if none given (as subparsers are required args in python)
+   find_sp = ["print", "evince", "extract", "sum"]
 
-   if args.texfile is not None:
-      codes = get_lars_codes_file(args.texfile)
-      records = [r for r in records if (r.code in codes)]
-      
-   # convert to bibtex
-   lars_bibtex(records, bibfile, options)
+   if len(sys.argv) > 1 and sys.argv[1] == "find" and len(set(sys.argv[1:]).intersection(find_sp)) == 0:
+      sys.argv.append("print")
 
-# ----------------------mars {evince, extract, sum, print} ----------------
-elif args.cmd == "evince" or args.cmd == "extract" or args.cmd == "sum" or args.cmd == "print":
+   args = parser.parse_args()
 
-   if len(args.lcode) == 1 and os.path.isfile(args.lcode[0]):
-      # we got a file containing lars codes
-      codes = get_lars_codes_file(args.lcode)
-   else:
-      # we got the codes as args directly
-      codes = get_lars_codes_str(args.lcode)
 
-   if (args.cmd == "evince" or args.cmd == "extract") and args.si:
-      for i,c in enumerate(codes):
-         codes[i] = codes[i] + "_s"
+   # ---------------------------------- function switch -----------------------------------
 
-   if args.cmd == "evince":
+   # crossroads for the different functions - decide, where to send the input...
 
-      lars_evince(codes, srcpath)
+   # -------------------------- mars find ----------------------------
+   if args.cmd == "find":
 
-   elif args.cmd == "extract":
-      lars_extract(codes, srcpath, args.tag)
-
-   elif args.cmd == "print":
       # read in lars file
       records = read_in(larsfile)
-      found = [r for r in records if (r.code in codes)]
 
-      lars_print(found, args.record, args.code, args.author, args.journal, args.title, args.titauth, args.date)
+      # extract attributes to search for
+      search_attr = []
 
-   else: # sum
-      lars_sum(codes, path, args.tag, args.outfile)
+      if args.find_code:
+         search_attr.append("code")
+      if args.find_date:
+         search_attr.append("date")
+      if args.find_author:
+         search_attr.append("authNoLatex")
+      if args.find_title:
+         search_attr.append("titl")
+         search_attr.append("bkti")
+      if args.find_journal:
+         search_attr.append("jrnl")
+      if args.find_comment:
+         search_attr.append("comm")
 
+      # default: search everything
+      if len(search_attr) == 0:
+         search_attr = attr[:]
+         search_attr.remove("auth")
+         search_attr.append("authNoLatex")
+   
+      # get the job done
+      if not args.regex:
+         found = lars_find(records, args.key, search_attr, args.case)
+      else:
+         found = lars_find_regex(records, args.key, search_attr, args.case)
+
+      # extract codes for PDF ops. safe_code is unaffected by the output coloring of matches.
+      codes = [f.safe_code for f in found]
+
+      # now proceed to the outputting function...
+
+      # ~~~~~~~~~~ mars find ... print ... ~~~~~~~~~~
+      if args.cmd2 == "print":
+
+         lars_print(found, args.record, args.code, args.author, args.journal, args.title, args.titauth, args.date)
+
+      # ~~~~~~~~~~ mars find ... evince ... ~~~~~~~~~~
+      elif args.cmd2 == "evince":
+         lars_evince(codes, srcpath)
+
+      # ~~~~~~~~~~ mars find ... extract ... ~~~~~~~~~~
+      elif args.cmd2 == "extract":
+         lars_extract(codes, srcpath, args.tag)
+
+      # ~~~~~~~~~~ mars find ... sum ... ~~~~~~~~~~
+      elif args.cmd2 == "sum":
+         lars_sum(codes, path, args.tag, args.outfile)
+
+   # -------------------------- mars bibtex --------------------------
+   elif args.cmd == "bibtex":
+
+      # read in lars file
+      records = read_in(larsfile)
+
+      options = []
+      if args.reverse:
+         options.append("r")
+         
+      bibfile = args.bibfile[0] + ".bib"
+
+      if args.texfile is not None:
+         codes = get_lars_codes_file(args.texfile)
+         records = [r for r in records if (r.code in codes)]
+         
+      # convert to bibtex
+      lars_bibtex(records, bibfile, options)
+
+   # ----------------------mars {evince, extract, sum, print} ----------------
+   elif args.cmd == "evince" or args.cmd == "extract" or args.cmd == "sum" or args.cmd == "print":
+
+      if len(args.lcode) == 1 and os.path.isfile(args.lcode[0]):
+         # we got a file containing lars codes
+         codes = get_lars_codes_file(args.lcode)
+      else:
+         # we got the codes as args directly
+         codes = get_lars_codes_str(args.lcode)
+
+      if (args.cmd == "evince" or args.cmd == "extract") and args.si:
+         for i,c in enumerate(codes):
+            codes[i] = codes[i] + "_s"
+
+      if args.cmd == "evince":
+
+         lars_evince(codes, srcpath)
+
+      elif args.cmd == "extract":
+         lars_extract(codes, srcpath, args.tag)
+
+      elif args.cmd == "print":
+         # read in lars file
+         records = read_in(larsfile)
+         found = [r for r in records if (r.code in codes)]
+
+         lars_print(found, args.record, args.code, args.author, args.journal, args.title, args.titauth, args.date)
+
+      else: # sum
+         lars_sum(codes, path, args.tag, args.outfile)
+
+
+if __name__ == "__main__":
+   main()

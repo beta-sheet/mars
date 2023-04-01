@@ -4,7 +4,7 @@
 
 import re
 
-from lars_globals import attr
+from src.lars_globals import attr
 
 delim = "---------------------------------------------------------------------------"
 

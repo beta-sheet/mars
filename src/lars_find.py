@@ -1,11 +1,25 @@
 import re
 import sys
+from typing import List
 
-from lars_globals import record
+from src.lars_globals import record
 
 
 # operand-based case-insensitive search (AND, OR, NOT), no regex
-def lars_find(records, key, search_attr, case):
+def lars_find(records: List[record], key: str, search_attr: List[str], case: bool):
+    """Filter list of records based on given key. The key can contain the operands 
+    AND, OR, and NOT.
+
+    Args:
+        records (List[record]): List of records read in from LARS file
+        key (str): Search key which may contain AND, OR and NOT operands
+        search_attr (List[str]): List of attibutes to include in search (e.g. auth, titl)
+        case (bool): Switch for case-sensitive search
+
+    Returns:
+        List[record]: Subset of records which contain key
+    """ """"""
+
     # split key string based on parentheses and spaces
     keys = filter(None, re.split(r"([()]|AND|OR|NOT)", key))
     keys = [k for k in keys if not k.isspace()]
@@ -18,7 +32,8 @@ def lars_find(records, key, search_attr, case):
     keywords = []
     statement = ""
 
-    # loop over key terms
+    # This loop constructs an expression for filtering the input records which is then
+    # directly processed with exec()
     for k in keys:
         if not k in special_chars:
             # loop over lars attributes

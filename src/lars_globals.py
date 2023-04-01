@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 # --------------------------------------------------------------------------------------------------------------------------
 #                           GLOBAL VARS
@@ -32,42 +33,74 @@ latexInAuth = ["\\\\v", "\\\\'", '\\\\"', "{", "}", "\\\\~", "\\\\`"]
 # ---------------------------------------------------------------------------------------------------------------------------
 #                                         CLASS RECORD
 # ---------------------------------------------------------------------------------------------------------------------------
-# this is how we store the individual records
+
+
 class record:
-    # constructor - make sure all attributes are assigned to prevent runtime errors
+    """Class for storing bibliography entries"""
+
     def __init__(self):
-        self.last = ""  # memory slot for last modified entry
+        """constructor - make sure all attributes are assigned to prevent runtime errors"""
+        self.last = ""  # memory slot for last modified entry (as entries can span multiple lines)
         for a in attr:
             setattr(self, a, "")
 
     # set attribute a to s
-    def set(self, a, s):
-        s = s.lstrip().rstrip()
+    def set(self, a: str, s: str) -> None:
+        """set attribute a to the value of s
+
+        Args:
+            a (str): name of attribute (field)
+            s (str): value of field to be set
+        """
+        s = s.strip()
         setattr(self, a, s)
         self.last = a
 
-    # append string s to attribute a
-    def append(self, a, s):
-        s = s.rstrip().lstrip()
+    def append(self, a: str, s: str) -> None:
+        """append string s to attribute a
+
+        Args:
+            a (str): name of attribute (field)
+            s (str): value of field to be appended to current value
+        """
+        s = s.strip()
         orig = getattr(self, a)
         concat = orig + " " + s
         setattr(self, a, concat)
         self.last = a
 
-    def lsrec(self):  # list all current attributes (not needed at the moment)
+    def lsrec(self) -> List[str]:
+        """list all attributes - for debugging only
+
+        Returns:
+            List[str]: List of set attributes
+        """
         return [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]
 
-    def isEmpty(self):
+    def is_empty(self) -> bool:
+        """Check if record is empty (i.e. if last was set via set() or append())
+
+        Returns:
+            bool: record is empty
+        """
         return self.last == ""
 
     # check if attrib is a "valid" entry
-    def valid(self, attrib):
+    def valid(self, attrib: str) -> bool:
+        """check if attrib field contains a "valid" entry
+
+        Args:
+            attrib (str): attribute of this record
+
+        Returns:
+            bool: True if value of attrib is valid
+        """
         a = getattr(self, attrib)
-        return a != "" and a.lstrip().rstrip() != "-" and not a.startswith("XXX")
+        return a != "" and a.strip() != "-" and not a.startswith("XXX")
 
 
 # ---------------------------------------------------------------------------------------------------------------------------
@@ -76,7 +109,7 @@ class record:
 
 
 # function for reading in lars textfile to records array
-def read_in(infile):
+def read_in(infile: str) -> List[record]:
     # this is what we'll return
     records = []
 
@@ -122,13 +155,16 @@ def read_in(infile):
                 in_records = True
 
     # remove empty records
-    records = [rec for rec in records if not rec.isEmpty() and not rec.type == "KILL"]
+    records = [rec for rec in records if not rec.is_empty() and not rec.type == "KILL"]
 
     # make search-friendly rep of auths
     for i, rec in enumerate(records):
         rec.authNoLatex = rec.auth
         for s in latexInAuth:
             records[i].authNoLatex = re.sub(s, "", rec.authNoLatex)
+
+        # also make copy of codes in case they get colored by "find", as this messes up PDF operations.
+        rec.safe_code = rec.code
 
     larsfile.close()
 
