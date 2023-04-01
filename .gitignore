@@ -1,3 +1,5 @@
-./src/*.pyc
-./src/*.swp
+*__pycache__/
+*.py[cod]
 *.swp
+.vscode/
+*.egg-info
