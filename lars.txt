@@ -117,7 +117,7 @@ JRNL: J. Mol. Graph. Model. 118, 108312/1-108312/10
 TYPE: PAPR
 ---------------------------------------------------------------------------
 CODE: [OL22.2]/UNSR
-AUTH: Oliveira, M.P., Gon&ccedil;alves, Y.M.H., Kashef Ol Gheta, S.,
+AUTH: Oliveira, M.P., Gon\c{c}alves, Y.M.H., Kashef Ol Gheta, S.,
       Rieder, S.R, Horta, B.A.C. & H\"unenberger, P.H.
 DATE: 2022
 TITL: Comparison of the united- and all-atom representations of 
@@ -127,7 +127,7 @@ JRNL: J. Chem. Theory Comput. 18, 6757-6778
 TYPE: PAPR
 ---------------------------------------------------------------------------
 CODE: [RI22.1]/UNSR
-AUTH: Ries, B., Rieder, S., Rhiner, C., H&uuml;nenberger, P.H. & Riniker, S.
+AUTH: Ries, B., Rieder, S., Rhiner, C., H\"unenberger, P.H. & Riniker, S.
 DATE: 2022
 TITL: RestraintMaker: A graph-based approach to select distance restraints 
       in free-energy calculations with dual topology.

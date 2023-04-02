@@ -26,9 +26,6 @@ attr = [
     "xcls",
 ]
 
-# some latexery which might appear in author entries (as regexes)
-latexInAuth = ["\\\\v", "\\\\'", '\\\\"', "{", "}", "\\\\~", "\\\\`"]
-
 
 # ---------------------------------------------------------------------------------------------------------------------------
 #                                         CLASS RECORD
@@ -108,14 +105,14 @@ class Record:
 # ---------------------------------------------------------------------------------------------------------------------------
 
 
-def read_in(infile: str) -> List[Record]:
+def read_lars_file(infile: str) -> List[Record]:
     """function for reading in lars textfile to records array
 
     Args:
         infile (str): Name of lars file (lars.txt)
 
     Returns:
-        List[record]: List of bibliography entries
+        List[Record]: List of bibliography entries
     """
 
     # this is what we'll return
@@ -163,6 +160,9 @@ def read_in(infile: str) -> List[Record]:
     records = [rec for rec in records if not rec.is_empty() and not rec.type == "KILL"]
 
     # make search-friendly rep of auths
+    # These strings may appear in author entries of the lars file, which make searching difficult
+    latexInAuth = ["\\\\v", "\\\\'", '\\\\"', "{", "}", "\\\\~", "\\\\`"]
+
     for i, rec in enumerate(records):
         rec.authNoLatex = rec.auth
         for s in latexInAuth:

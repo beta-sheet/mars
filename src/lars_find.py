@@ -128,13 +128,23 @@ def lars_find_regex(
     return found
 
 
-# surround matching substrings with color codes for terminal printing
-def color_matches(found, kw, search_attr):
+def color_matches(found: List[Record], kw: str, search_attr: List[str]) -> List[Record]:
+    """surround matching substrings with color codes for stdout printing
+
+    Args:
+        found (List[Record]): Records matching a given filter
+        kw (str): regex to be matched for coloring
+        search_attr (List[str]): Attributes which were considered in the filtering
+
+    Returns:
+        List[Record]: Records with matches surrounded by color codes
+    """
+
     for i, f in enumerate(found):
         for a in search_attr:
             attrstr = getattr(found[i], a)
             key_regex = re.compile(kw, re.IGNORECASE)
-            # this is ugly -- I'd be much happier with a re.sub solution if there was one!
+            # find all matches of key regex in attribute string
             it = key_regex.finditer(attrstr)
             newattrstr = ""
             pos = 0

@@ -135,7 +135,7 @@ def main():
    if args.cmd == "find":
 
       # read in lars file
-      records = read_in(larsfile)
+      records = read_lars_file(larsfile)
 
       # extract attributes to search for
       search_attr = []
@@ -192,7 +192,7 @@ def main():
    elif args.cmd == "bibtex":
 
       # read in lars file
-      records = read_in(larsfile)
+      records = read_lars_file(larsfile)
 
       options = []
       if args.reverse:
@@ -230,7 +230,7 @@ def main():
 
       elif args.cmd == "print":
          # read in lars file
-         records = read_in(larsfile)
+         records = read_lars_file(larsfile)
          found = [r for r in records if (r.code in codes)]
 
          lars_print(found, args.record, args.code, args.author, args.journal, args.title, args.titauth, args.date)

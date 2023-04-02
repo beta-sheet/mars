@@ -3,16 +3,39 @@
 # -----------------------------------------------------------------------------------------------
 
 import re
+from typing import List
 
-from src.lars_globals import attr
+from src.lars_globals import attr, Record
 
+# delimiter for printing records
 delim = "---------------------------------------------------------------------------"
 
 
-# global function we send it to
-def lars_print(reclist, record, code, author, journal, title, titauth, date):
+def lars_print(
+    reclist: List[Record],
+    record: bool,
+    code: bool,
+    author: bool,
+    journal: bool,
+    title: bool,
+    titauth: bool,
+    date: bool,
+) -> None:
+    """Print selected attributes of entries in reclist
+
+    Args:
+        reclist (List[Record]): List of (filtered) records read from lars.txt
+        record (bool): print everything contained in record (print -r)
+        code (bool): Print codes
+        author (bool): Print authors
+        journal (bool): Print JRNL entry (journal, volume, pages)
+        title (bool): Print document title
+        titauth (bool): Print first+last author and title
+        date (bool): Print year
+    """
+
     # decide on what to print
-    # record overrides code overrides everything else
+    # record and code override everything else
     if record:
         print_records(reclist)
     elif code:
@@ -38,19 +61,29 @@ def lars_print(reclist, record, code, author, journal, title, titauth, date):
         print_attrib(reclist, print_attr)
 
 
-# print -c
-def print_codes(reclist):
+def print_codes(reclist: List[Record]) -> None:
+    """Print codes only (print -c)
+
+    Args:
+        reclist (List[Record]): List of records
+    """
+
     for r in reclist:
         print(r.code)
 
 
-# print -r
-def print_records(reclist):
+def print_records(reclist: List[Record]) -> None:
+    """Print all attributes of records in reclist (print -r)
+
+    Args:
+        reclist (List[Record]): List of records to print
+    """
+
     for r in reclist:
         print(delim)
         print("CODE: [" + r.code + "]" + r.ctgr)
 
-        attrslice = attr[2:]
+        attrslice = attr[2:]  # remove code ant ctgr (already printed)
 
         for a in attrslice:
             if a == "auth":
@@ -67,10 +100,18 @@ def print_records(reclist):
     print(delim)
 
 
-# everything else
-def print_attrib(reclist, attrib):
+def print_attrib(reclist: List[Record], attrib: List[str]) -> None:
+    """Print selected attributes only
+
+    Args:
+        reclist (List[Record]): List of records to print
+        attrib (List[str]): List of attributes to print
+    """
+
+    # in case of stacked arguments to print (e.g. print -atj) use delimiter
+    # to improve readability
     if len(attrib) > 1:
-        print("")
+        print(delim)
 
     # iterate over records to be printed
     for r in reclist:
@@ -105,7 +146,7 @@ def print_attrib(reclist, attrib):
 
         # improve readability
         if len(attrib) > 1:
-            print("")
+            print(delim)
 
 
 # -----------------------------------------------------------------------------------------------
@@ -113,8 +154,16 @@ def print_attrib(reclist, attrib):
 # -----------------------------------------------------------------------------------------------
 
 
-# makes list of last names of authors based on auth entry
-def auth_last_names(authstr):
+def auth_last_names(authstr: str) -> List[str]:
+    """Make list of last names of authors based on auth entry
+
+    Args:
+        authstr (str): Raw auth entry of a given record
+
+    Returns:
+        List[str]: List containing last names only
+    """
+
     authlist = re.split(r",|\&", authstr)
 
     # last names = odd entries
@@ -126,8 +175,17 @@ def auth_last_names(authstr):
     return last
 
 
-# splits string s in chunks of max width and returns them as list
-def split_string(s, width):
+def split_string(s: str, width: int) -> List[str]:
+    """Splits string s in chunks of max width and returns them as list.
+
+    Args:
+        s (str): String to split
+        width (int): Maximum width of chunks as number of characters
+
+    Returns:
+        List[str]: String s split into chunks
+    """
+
     # split by whitespaces
     slist = s.split()
 

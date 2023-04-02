@@ -16,6 +16,9 @@
 import datetime
 import re
 import os
+from typing import List
+
+from src.lars_globals import Record
 
 
 # -----------------------------------------------------------------------------------------------
@@ -23,8 +26,15 @@ import os
 # -----------------------------------------------------------------------------------------------
 
 
-# main function
-def lars_bibtex(records, outfile, options):
+def lars_bibtex(records: List[Record], outfile: str, options: List[str]) -> None:
+    """Write bibtex file containing entries for the given records
+
+    Args:
+        records (List[Record]): List of bibliography entries as records
+        outfile (str): Name of bib file to write
+        options (List[str]): Extra options, currently only used for reverse author format
+    """
+
     # create or overwrite bib file
     bibfile = open(outfile, "w")
 
@@ -33,15 +43,14 @@ def lars_bibtex(records, outfile, options):
     bibfile.write("% LARS file in bibtex format\n")
     bibfile.write("% converted by lars bibtex on " + timestamp + "\n\n\n")
 
-    # if reverse author format, choose appropriate function
+    # set function for generating the author entries depending on whether -r flag is set
     if "r" in options:
         auth_func = bibtex_reverse_auth
     else:
         auth_func = bibtex_compat_auth
 
     for r in records:
-        # Note: I may integrate those to the record class at some point (will also be useful
-        # for reference matching)
+        # make entries bibtex-compatible
         auth = auth_func(r.auth)
         jrnl, vol, page = bibtex_compat_jrnl(r.jrnl)
         titl = bibtex_compat_str(r.titl)
@@ -150,16 +159,31 @@ def lars_bibtex(records, outfile, options):
 # -----------------------------------------------------------------------------------------------
 
 
-# put {} around name if more than one
-def auth_names(name):
+def auth_names(name: str) -> str:
+    """if more than one last name, put {} around it
+
+    Args:
+        name (str): String with author name(s)
+
+    Returns:
+        str: Names wrapped in braces if multiple
+    """
     if len(name.split()) > 1:
-        return "{" + name.lstrip().rstrip() + "}"
+        return "{" + name.strip() + "}"
     else:
         return name
 
 
-# make bibtex-compatible author entry ("and"-separated)
-def bibtex_compat_auth(authstr):
+def bibtex_compat_auth(authstr: str) -> str:
+    """make bibtex-compatible author entry ("and"-separated) in the format Lastname, First.
+
+    Args:
+        authstr (str): author entry read from the lars file
+
+    Returns:
+        str: bibtex-compatible author entry
+    """
+
     # substitute double quotes indise auth entries (annoying Student)
     authstr = re.sub(r'"(.*?)"', r"''\1``", authstr)
 
@@ -176,7 +200,7 @@ def bibtex_compat_auth(authstr):
         authlist = [auth_names(a) + "," + next(authIter, "") for a in authIter]
 
     # readability enhancement
-    authlist = [a.lstrip().rstrip() for a in authlist]
+    authlist = [a.strip() for a in authlist]
 
     # ... and make string out of it again
     res = " and ".join(authlist)
@@ -186,8 +210,16 @@ def bibtex_compat_auth(authstr):
     return res
 
 
-# make bibtex-compatible author entry ("and"-separated) in REVERSE format
-def bibtex_reverse_auth(authstr):
+def bibtex_reverse_auth(authstr: str) -> str:
+    """make bibtex-compatible author entry ("and"-separated) in REVERSE format (First. Lastname)
+
+    Args:
+        authstr (str): author entry read from the lars file
+
+    Returns:
+        str: bibtex-compatible author entry
+    """
+
     # substitute double quotes indise auth entries (annoying Student)
     authstr = re.sub(r'"(.*?)"', r"''\1``", authstr)
 
@@ -202,7 +234,7 @@ def bibtex_reverse_auth(authstr):
     authlist = [next(authIter, "") + auth_names(a) for a in authIter]
 
     # readability enhancement
-    authlist = [a.lstrip().rstrip() for a in authlist]
+    authlist = [a.strip() for a in authlist]
 
     # ... and make string out of it again
     res = " and ".join(authlist)
@@ -212,8 +244,16 @@ def bibtex_reverse_auth(authstr):
     return res
 
 
-# split jrnl record in journal, volume and page
-def bibtex_compat_jrnl(jrnlstr):
+def bibtex_compat_jrnl(jrnlstr: str) -> List[str]:
+    """plit jrnl record in journal, volume and page
+
+    Args:
+        jrnlstr (str): raw JRNL entry in bibfile
+
+    Returns:
+        List[str]: [journal, volume, pages]
+    """
+
     jrnlstr = bibtex_compat_str(jrnlstr)
 
     # separate in journal name+vol, page
@@ -226,12 +266,11 @@ def bibtex_compat_jrnl(jrnlstr):
 
     else:
         # last entry is the page
-        page = jrnllist.pop().lstrip().rstrip().split("/")[0]
+        page = jrnllist.pop().strip().split("/")[0]
         jrnlvol = "".join(jrnllist)
 
         # now the volume is the last element in the remaining jrnllist
         jrnllist = jrnlvol.split()
-
         vol = jrnllist.pop()
 
         jrnl = " ".join(jrnllist)
@@ -239,9 +278,16 @@ def bibtex_compat_jrnl(jrnlstr):
     return [jrnl, vol, page]
 
 
-# make the string compilable inside quotes
-# this is ugly - to be cleaned up later (maybe some regex whiz could help?)
-def bibtex_compat_str(s):
+def bibtex_compat_str(s: str) -> str:
+    """make the string compilable inside quotes
+
+    Args:
+        s (str): raw string from lars file
+
+    Returns:
+        str: Adapted string which can be enclosed by ""
+    """
+
     # who the hell wrote those {\i} entries...
     s = re.sub(r"\{\\i\}", "i", s)
 
