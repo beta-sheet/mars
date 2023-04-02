@@ -35,7 +35,7 @@ latexInAuth = ["\\\\v", "\\\\'", '\\\\"', "{", "}", "\\\\~", "\\\\`"]
 # ---------------------------------------------------------------------------------------------------------------------------
 
 
-class record:
+class Record:
     """Class for storing bibliography entries"""
 
     def __init__(self):
@@ -108,38 +108,47 @@ class record:
 # ---------------------------------------------------------------------------------------------------------------------------
 
 
-# function for reading in lars textfile to records array
-def read_in(infile: str) -> List[record]:
+def read_in(infile: str) -> List[Record]:
+    """function for reading in lars textfile to records array
+
+    Args:
+        infile (str): Name of lars file (lars.txt)
+
+    Returns:
+        List[record]: List of bibliography entries
+    """
+
     # this is what we'll return
     records = []
 
-    # open lars file for reading
-    larsfile = open(infile, "r")
+    # read in content of larsfile as lines
+    with open(infile, "r") as larsfile:
+        content = larsfile.readlines()
 
-    # temporary variables for parsing lars file
-    in_records = False
-    r = record()
+    # trim off everything between _BEGIN_RECORDS_ and _END_RECORDS_
+    content = [c.strip() for c in content]
+    start = content.index("_BEGIN_RECORDS_")
+    end = content.index("_END_RECORDS_")
+    content = content[start + 1 : end]
+
+    r = Record()
 
     # loop over lines
-    for line in larsfile:
+    for line in content:
         # remove comments
         line = line.split("#")[0]
 
-        if in_records and not line == "" and not line.isspace():
-            if line.startswith("----"):
+        if not line == "" and not line.isspace():
+            if line.startswith("----"):  # end of record
                 if r.code != "":
                     c = r.code
                     r.set("code", c[c.find("[") + 1 : c.find("]")])
                     r.set("ctgr", c[c.find("]") + 1 :])
 
                 records.append(r)
-                r = record()
+                r = Record()
 
-            elif "_END_RECORDS_" in line:
-                in_records = False
-                break
-
-            else:
+            else:  # continuation of current record
                 found = False
                 lline = line.lower()
                 for a in attr:
@@ -149,10 +158,6 @@ def read_in(infile: str) -> List[record]:
 
                 if not found:
                     r.append(r.last, line)
-
-        else:
-            if "_BEGIN_RECORDS_" in line:
-                in_records = True
 
     # remove empty records
     records = [rec for rec in records if not rec.is_empty() and not rec.type == "KILL"]
@@ -166,53 +171,23 @@ def read_in(infile: str) -> List[record]:
         # also make copy of codes in case they get colored by "find", as this messes up PDF operations.
         rec.safe_code = rec.code
 
-    larsfile.close()
-
     return records
 
 
-# read file infilestr and search for anything that looks like a lars code
-def get_lars_codes_file(infilestr):
-    infile = open(infilestr[0], "r")
+def get_lars_codes_file(infilestr: str) -> List[str]:
+    """read file infilestr and search for anything that looks like a lars code
 
-    # read in whole file as a string
-    data = infile.read().replace("\n", "")
+    Args:
+        infilestr (str): Name of file to parse for codes
+
+    Returns:
+        List[str]: List of unique lars codes
+    """
+
+    with open(infilestr[0], "r") as infile:
+        data = infile.read()
 
     matches = re.findall("[A-Z][A-Z][0-9][0-9][.][0-9][0-9]?", data)
-
-    infile.close()
-
     matches = list(set(matches))
 
     return matches
-
-
-# read latex file infilestr and search for anything that looks like \cite{larscode}
-def get_lars_codes_latex(infilestr):
-    infile = open(infilestr, "r")
-
-    # read in whole file as a string
-    data = infile.read().replace("\n", "")
-
-    matches = re.findall("\\\\cite\{.*?\}|\\\\citenum\{.*?\}", data)
-
-    matches = get_lars_codes_str(matches)
-
-    infile.close()
-
-    return matches
-
-
-# parse input string for lars codes
-def get_lars_codes_str(codestr):
-    codes = []
-
-    for c in codestr:
-        matches = re.findall("[A-Z][A-Z][0-9][0-9][.][0-9][0-9]?", c)
-
-        for m in matches:
-            codes.append(m)
-
-        codes = list(set(codes))
-
-    return codes

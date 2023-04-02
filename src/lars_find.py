@@ -2,11 +2,13 @@ import re
 import sys
 from typing import List
 
-from src.lars_globals import record
+from src.lars_globals import Record
 
 
 # operand-based case-insensitive search (AND, OR, NOT), no regex
-def lars_find(records: List[record], key: str, search_attr: List[str], case: bool):
+def lars_find(
+    records: List[Record], key: str, search_attr: List[str], case: bool
+) -> List[Record]:
     """Filter list of records based on given key. The key can contain the operands 
     AND, OR, and NOT.
 
@@ -17,7 +19,7 @@ def lars_find(records: List[record], key: str, search_attr: List[str], case: boo
         case (bool): Switch for case-sensitive search
 
     Returns:
-        List[record]: Subset of records which contain key
+        List[Record]: Subset of records which contain key
     """ """"""
 
     # split key string based on parentheses and spaces
@@ -79,6 +81,8 @@ def lars_find(records: List[record], key: str, search_attr: List[str], case: boo
     # retrieve result from exec
     found = locals_dict["found"]
 
+    # if the output gets written to a terminal (rather than being redirected to a text file),
+    # matching patterns will be colored in red
     if sys.stdout.isatty():
         found = color_matches(found, "|".join(keywords), search_attr)
 
@@ -86,24 +90,38 @@ def lars_find(records: List[record], key: str, search_attr: List[str], case: boo
 
 
 # case-insensitive regex search
-def lars_find_regex(records, key, search_attr, case):
+def lars_find_regex(
+    records: List[Record], key: str, search_attr: List[str], case: bool
+) -> List[Record]:
+    """Filter list of records based on a regex key (used with find -r)
+
+    Args:
+        records (List[Record]): List of records read in from LARS file
+        key (str): Search key as a regex expression
+        search_attr (List[str]): List of attibutes to include in search (e.g. auth, titl)
+        case (bool): Switch for case-sensitive search
+
+    Returns:
+        List[Record]: Subset of records which match the given regex
+    """
     # here we'll store our matches
     found = []
 
     # loop over lars attributes
     for a in search_attr:
-        # get the job done
-        if case:
+        if case:  # case-sensitive
             found = found + [
                 r for r in records if re.search(key, getattr(r, a)) != None
             ]
-        else:
+        else:  # case-insensitive
             found = found + [
                 r
                 for r in records
                 if re.search(key.lower(), getattr(r, a).lower()) != None
             ]
 
+    # if the output gets written to a terminal (rather than being redirected to a text file),
+    # matching patterns will be colored in red
     if sys.stdout.isatty():
         found = color_matches(found, key, search_attr)
 

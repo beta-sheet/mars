@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------
 #                                   LARS TAG FUNCTION
@@ -12,10 +12,7 @@
 
 # get the absolute paths
 wd="$(pwd)"
-SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"  # where this script is located
-PYLARS="$(dirname "$SRC")"  # parent directory
-TAG="${PYLARS}/tag"
-TMP="${PYLARS}/tmp"
+TMP="$(mktemp -d)"
 
 # input
 pdf=$1
@@ -23,28 +20,36 @@ pdfname=$(basename $1)
 pdfname="${pdfname%.*}"
 pdfname=${pdfname}_$$
 lars_code=$2
-stamp_tex="$TAG/stamp.tex"
+stamp_tex="$TMP/stamp.tex"
 
-# check if PDF found - otherwise do nothing
+# check if PDF file exists - otherwise do nothing
 if [ ! -f "$pdf" ]; then
    exit
 fi
 
+# prepare tex file with lars code stamp
+echo "\documentclass[paper=a4, fontsize=12pt]{scrartcl}" > "$stamp_tex"
+echo "\usepackage[T1]{fontenc}" >> "$stamp_tex"
+echo "\usepackage[margin={0in,0.2in}]{geometry}" >> "$stamp_tex"
+echo "\usepackage[utf8]{inputenc}" >> "$stamp_tex"
+echo "\usepackage[english]{babel}" >> "$stamp_tex"														
+echo "\begin{document}" >> "$stamp_tex"
+echo "\hfill \texttt{${lars_code}}" >> "$stamp_tex"
+echo "\end{document}" >> "$stamp_tex"
+
 # make blank PDF page with lars code in top right corner
-sed "s/LARSCODE/$lars_code/g" $stamp_tex > $TMP/${pdfname}_overlay.tex
 cd $TMP
-pdflatex ${pdfname}_overlay.tex >/dev/null
+pdflatex "${stamp_tex}" >/dev/null
 cd "$wd"
 
 # separate 1st page from document and stamp it
-
 num_pages=$(pdftk "$pdf" dump_data|grep NumberOfPages| awk '{print $2}')
 
 pdftk $pdf cat 1 output $TMP/${pdfname}_1.pdf
 if [[ $num_pages -ne 1 ]]; then
    pdftk $pdf cat 2-end output $TMP/${pdfname}_2.pdf
 fi
-pdftk $TMP/${pdfname}_1.pdf stamp $TMP/${pdfname}_overlay.pdf output $TMP/${pdfname}_1stamp.pdf
+pdftk $TMP/${pdfname}_1.pdf stamp $TMP/stamp.pdf output $TMP/${pdfname}_1stamp.pdf
 
 # if file in wd, overwrite it (pdftk won't overwrite)
 if [ -f "${pdf}" ]; then
@@ -59,6 +64,4 @@ else
 fi
 #
 # clean up
-cd $TMP
-rm  -f ${pdfname}_1.pdf ${pdfname}_1stamp.pdf ${pdfname}_2.pdf ${pdfname}_overlay.*
-cd "$wd"
+rm -rf $TMP

@@ -215,7 +215,7 @@ def main():
          codes = get_lars_codes_file(args.lcode)
       else:
          # we got the codes as args directly
-         codes = get_lars_codes_str(args.lcode)
+         codes = args.lcode
 
       if (args.cmd == "evince" or args.cmd == "extract") and args.si:
          for i,c in enumerate(codes):

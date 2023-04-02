@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # arg: lars code of pdf to be evince'd
 repo_dir=$(dirname $(dirname ${BASH_SOURCE[0]}))
