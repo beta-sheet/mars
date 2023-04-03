@@ -4,7 +4,7 @@ Command-line tool for bibliography management
 
 ## Background
 
-In my PhD lab we had a citation database ("lars") with more than 20k entries, which has been manually curated over the last 20 years. A small sample with 22 entries is included in `assets/lars.txt`. The main goal of this tool is convert it to bibtex format to make
+In my PhD lab we had a citation database ("lars") with more than 20k entries, which has been manually curated over the last 20 years. A small sample of this database with 22 entries is included in `assets/lars.txt`. The main goal of this tool is convert it to bibtex format to make
 paper writing easier. Furthermore, it also provides functionality for doing keyword searches on the bibliography entries.
 
 The citation keys therein, also referred to as "lars codes", are made up by the first two letters of the first author's last name, the last 2 digits of the publication year, followed by a dot and a sequential index.
@@ -27,6 +27,11 @@ Functionality for searching the lars file and bibliography generation isn't affe
 
 ## Use
 
-MARS uses argparse to process the input, and help messages are provided. Type `./mars -h` to see the available functions (subparsers), and e.g. `./mars find -h` for the args required for each subparser.
+MARS uses argparse to process the input, and help messages are provided. Type `./mars -h` to see the available functions (subparsers), and e.g. `./mars find -h` for the use are arguments required for each subparser.
 
-Converting `lars.txt` to bibtex: `./mars bibtex`
+### Example use cases
+
+- Converting `lars.txt` to bibtex: `./mars bibtex`
+- List all entries containing the keyword "energy" but not "hydration": `./mars find "energy AND NOT hydration"`
+- Print the entry matching the lars code KU20.1: `./mars print -r KU20.1`
+- (Linux only) Open PDFs of documents where "Krishnan" is a (co-)author: `./mars find -a krishnan evince`
