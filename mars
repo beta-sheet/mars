@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # --------------------------------------------------------------------------------------
 #                                   MAIN SCRIPT
@@ -28,7 +28,8 @@ def main():
    # ----------------------------------------- argparse -------------------------------------
 
    # parse input args and decide what to do next
-   parser = argparse.ArgumentParser(description="This is a ripped-off version of Phil's lars csh scripts, rewritten in python with bash wrappers. \
+   parser = argparse.ArgumentParser(description="This is a tool for bibliography management based on the LARS file, \
+      most of its functionalify based on a collection of csh scripts, rewritten in python with bash wrappers. \
       It performs a variety of functions, which can be specified by the commands listed below (\"positional arguments\"). \
       For more info on the individual commands, type mars [command] -h")
 
