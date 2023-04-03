@@ -5,7 +5,7 @@
 import re
 from typing import List
 
-from src.lars_globals import attr, Record
+from src.util import attr, Record
 
 # delimiter for printing records
 delim = "---------------------------------------------------------------------------"

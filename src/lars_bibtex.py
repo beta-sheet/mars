@@ -18,7 +18,7 @@ import re
 import os
 from typing import List
 
-from src.lars_globals import Record
+from src.util.record import Record
 
 
 # -----------------------------------------------------------------------------------------------

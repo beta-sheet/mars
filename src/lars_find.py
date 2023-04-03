@@ -2,7 +2,7 @@ import re
 import sys
 from typing import List
 
-from src.lars_globals import Record
+from src.util.record import Record
 
 
 # operand-based case-insensitive search (AND, OR, NOT), no regex

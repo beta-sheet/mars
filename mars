@@ -14,17 +14,16 @@ import sys
 
 from src.lars_bibtex import lars_bibtex
 from src.lars_find import lars_find, lars_find_regex
-from src.lars_globals import *
 from src.lars_pdf import *
 from src.lars_print import lars_print
+from src.util import attr, get_lars_codes_from_file, read_lars_file
 
 
 def main():
 
    # set up paths
-   path = os.path.dirname(os.path.realpath(__file__))
-   larsfile = path + "/lars.txt"
-   srcpath = path + "/src"
+   root_path = os.path.dirname(os.path.realpath(__file__))
+   larsfile = os.path.join(root_path, "assets/lars.txt")
 
    # ----------------------------------------- argparse -------------------------------------
 
@@ -115,9 +114,6 @@ def main():
    sp_bibtex.add_argument("-f", "--infile", help="parse file.tex for larscodes", nargs=1, dest="texfile")
    sp_bibtex.add_argument("-r", "--reverse", help="report authors as [surname last_name]", action='store_true')
 
-   # lars reflist
-   #sp_reflist = sub1.add_parser("reflist", help="Not supported yet")
-
    # add default printer to find if none given (as subparsers are required args in python)
    find_sp = ["print", "evince", "extract", "sum"]
 
@@ -178,15 +174,15 @@ def main():
 
       # ~~~~~~~~~~ mars find ... evince ... ~~~~~~~~~~
       elif args.cmd2 == "evince":
-         lars_evince(codes, srcpath)
+         lars_evince(codes, root_path)
 
       # ~~~~~~~~~~ mars find ... extract ... ~~~~~~~~~~
       elif args.cmd2 == "extract":
-         lars_extract(codes, srcpath, args.tag)
+         lars_extract(codes, root_path, args.tag)
 
       # ~~~~~~~~~~ mars find ... sum ... ~~~~~~~~~~
       elif args.cmd2 == "sum":
-         lars_sum(codes, path, args.tag, args.outfile)
+         lars_sum(codes, root_path, args.tag, args.outfile)
 
    # -------------------------- mars bibtex --------------------------
    elif args.cmd == "bibtex":
@@ -201,7 +197,7 @@ def main():
       bibfile = args.bibfile[0] + ".bib"
 
       if args.texfile is not None:
-         codes = get_lars_codes_file(args.texfile)
+         codes = get_lars_codes_from_file(args.texfile)
          records = [r for r in records if (r.code in codes)]
          
       # convert to bibtex
@@ -212,7 +208,7 @@ def main():
 
       if len(args.lcode) == 1 and os.path.isfile(args.lcode[0]):
          # we got a file containing lars codes
-         codes = get_lars_codes_file(args.lcode)
+         codes = get_lars_codes_from_file(args.lcode)
       else:
          # we got the codes as args directly
          codes = args.lcode
@@ -223,10 +219,10 @@ def main():
 
       if args.cmd == "evince":
 
-         lars_evince(codes, srcpath)
+         lars_evince(codes, root_path)
 
       elif args.cmd == "extract":
-         lars_extract(codes, srcpath, args.tag)
+         lars_extract(codes, root_path, args.tag)
 
       elif args.cmd == "print":
          # read in lars file
@@ -236,7 +232,7 @@ def main():
          lars_print(found, args.record, args.code, args.author, args.journal, args.title, args.titauth, args.date)
 
       else: # sum
-         lars_sum(codes, path, args.tag, args.outfile)
+         lars_sum(codes, root_path, args.tag, args.outfile)
 
 
 if __name__ == "__main__":
