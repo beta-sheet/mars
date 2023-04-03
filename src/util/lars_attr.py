@@ -1,4 +1,3 @@
-
 # ALL possible entries that might appear in lars.txt (a not recognized entry will be appended to the previous entry!)
 attr = [
     "code",
@@ -18,5 +17,3 @@ attr = [
     "comm",
     "xcls",
 ]
-
-
